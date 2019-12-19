@@ -1,36 +1,69 @@
 package tf.bug.fancadedsl
 
+import cats.Show
+import cats.implicits._
+import cats.effect.Sync
+import io.chrisdavenport.fuuid.FUUID
 import shapeless._
 import shapeless.nat._
 import shapeless.ops.hlist.Length
+import tf.bug.fancadedsl.Fancade.Block
+
+import scala.util.Random
 
 case class Variable[T: DataType](name: String)
 
 object Variable {
 
-  case class Get[T: DataType](v: Variable[T])
+  def apply[F[_], T](implicit sync: Sync[F], dataType: DataType[T]): F[Variable[T]] =
+    sync
+      .delay {
+        val bits = 72
+        val id = BigInt(bits, Random)
+        s"${dataType.name.head}${id.toString(36)}"
+      }
+      .map(Variable[T](_))
 
-  case class Set[T: DataType](v: Variable[T])
+  case class Get[T: DataType](variable: Variable[T])
+  case class Set[T: DataType](variable: Variable[T])
 
   trait Implicits {
 
-    implicit def getVariableBlock[T: DataType]
-        : ScriptBlock.Aux[Get[T], HNil, T :: HNil, false, _0] =
-      new ScriptBlock[Get[T]] {
+    implicit def showVariable[T](
+        implicit dataType: DataType[T]
+    ): Show[Variable[T]] =
+      Show.show(v => {
+        show"Variable[${dataType.name}](${v.name})"
+      })
+
+    implicit def showGetVariable[T](
+        implicit dataType: DataType[T]
+    ): Show[Get[T]] = Show.show {
+      case Get(v) => show"Get[${dataType.name}]($v)"
+    }
+
+    implicit def getVariableAsBlock[T: DataType]
+        : AsBlock.Aux[Get[T], HNil, T :: HNil, false, _0] =
+      new AsBlock[Get[T]] {
         override type IsEffect = false
         override type ExtraEffects = _0
         override type Inputs = HNil
         override type Outputs = T :: HNil
       }
 
-    implicit def setVariableBlock[T: DataType]
-        : ScriptBlock.Aux[Set[T], T :: HNil, HNil, true, _0] =
-      new ScriptBlock[Set[T]] {
-        override type IsEffect = true
-        override type ExtraEffects = _0
-        override type Inputs = T :: HNil
-        override type Outputs = HNil
-      }
+    implicit def showSetVariable[T](
+        implicit dataType: DataType[T]
+    ): Show[Set[T]] = Show.show {
+      case Set(v) => show"Set[${dataType.name}]($v)"
+    }
+
+    implicit def setVariableAsBlock[T: DataType]
+        : AsBlock.Aux[Set[T], T :: HNil, HNil, true, _0] = new AsBlock[Set[T]] {
+      override type IsEffect = true
+      override type ExtraEffects = _0
+      override type Inputs = T :: HNil
+      override type Outputs = HNil
+    }
 
   }
 
@@ -40,13 +73,19 @@ case class Value[T: DataType](value: T)
 
 object Value {
 
-  case class Get[T: DataType](v: Value[T])
-
   trait Implicits {
 
-    implicit def getValueBlock[T: DataType]
-        : ScriptBlock.Aux[Get[T], HNil, T :: HNil, false, _0] =
-      new ScriptBlock[Get[T]] {
+    implicit def showValue[T](
+        implicit dataType: DataType[T],
+        showValue: Show[T]
+    ): Show[Value[T]] =
+      Show.show(v => {
+        show"Value[${dataType.name}](${v.value})"
+      })
+
+    implicit def valueAsBlock[T: DataType]
+        : AsBlock.Aux[Value[T], HNil, T :: HNil, false, _0] =
+      new AsBlock[Value[T]] {
         override type IsEffect = false
         override type ExtraEffects = _0
         override type Inputs = HNil

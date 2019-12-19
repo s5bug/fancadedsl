@@ -10,8 +10,8 @@ object Logic {
   trait Implicits {
 
     implicit val ifThenElseBlock
-        : ScriptBlock.Aux[IfThenElse.type, Boolean :: HNil, HNil, true, _2] =
-      new ScriptBlock[IfThenElse.type] {
+        : AsBlock.Aux[IfThenElse.type, Boolean :: HNil, HNil, true, _2] =
+      new AsBlock[IfThenElse.type] {
         override type IsEffect = true
         override type ExtraEffects = _2
         override type Inputs = Boolean :: HNil

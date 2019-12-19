@@ -3,7 +3,7 @@ package tf.bug.fancadedsl
 import shapeless.{HList, Nat}
 import shapeless.nat._
 
-trait ScriptBlock[A] {
+trait AsBlock[A] {
 
   type IsEffect <: Boolean
   type ExtraEffects <: Nat
@@ -13,9 +13,9 @@ trait ScriptBlock[A] {
 
 }
 
-object ScriptBlock {
+object AsBlock {
 
-  type Aux[A, I <: HList, O <: HList, E <: Boolean, X <: Nat] = ScriptBlock[A] {
+  type Aux[A, I <: HList, O <: HList, E <: Boolean, X <: Nat] = AsBlock[A] {
     type IsEffect = E
     type ExtraEffects = X
     type Inputs = I
