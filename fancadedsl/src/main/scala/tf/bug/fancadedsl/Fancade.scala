@@ -110,6 +110,7 @@ object Fancade {
       id: FUUID
   )
 
+  sealed trait Connection[A, B]
   case class DataConnection[
       F,
       T,
@@ -132,7 +133,7 @@ object Fancade {
       outputIndexEv: ToInt[G],
       inputIndexEv: ToInt[S],
       connectable: Connectable.Aux[F, T, true]
-  ) {
+  ) extends Connection[A, B] {
     val fromIndex: Int = outputIndexEv()
     val toIndex: Int = inputIndexEv()
   }
@@ -140,7 +141,7 @@ object Fancade {
   case class EffectConnection[A, B](
       from: Block[A, _ <: HList, _ <: HList, true, _ <: Nat],
       to: Block[B, _ <: HList, _ <: HList, true, _ <: Nat]
-  )
+  ) extends Connection[A, B]
 
   case class BranchConnection[A, B, X <: Nat, Y <: Nat](
       from: Block[A, _ <: HList, _ <: HList, _ <: Boolean, X],
@@ -149,7 +150,7 @@ object Fancade {
   )(
       implicit validBranchEv: LT[Y, X],
       atIndexEv: ToInt[Y]
-  ) {
+  ) extends Connection[A, B] {
     val atIndex: Int = atIndexEv()
   }
 

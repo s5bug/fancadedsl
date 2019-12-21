@@ -8,7 +8,7 @@ object Main extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
     val fancade = Fancade[IO]
-    val program: IO[(Vector[String], Vector[String])] = for {
+    val program: IO[World] = for {
       counter <- fancade.variable[Double]
       getCounter <- fancade.block(Variable.Get(counter))
       setCounterInc <- fancade.block(Variable.Set(counter))
@@ -31,19 +31,11 @@ object Main extends IOApp {
       setCounterZero <- fancade.block(Variable.Set(counter))
       wipeCounter <- fancade.connect(zeroBlock, _0, setCounterZero, _0)
       wipeIfSixty <- fancade.on(ifThenElse, _1, setCounterZero)
-    } yield (
-      Vector(getCounter.show, setCounterInc.show, oneBlock.show, add.show, lessThan.show, ifThenElse.show, sixtyBlock.show, zeroBlock.show, setCounterZero.show),
-      Vector(oneToAdd.show, counterToAdd.show, additionToCounter.show, counterToLessThan.show, sixtyToLessThan.show, lessThanToIf.show, incrementIfLessThan.show, wipeCounter.show, wipeIfSixty.show)
+    } yield World(
+      Vector(getCounter, setCounterInc, oneBlock, add, lessThan, ifThenElse, sixtyBlock, zeroBlock, setCounterZero),
+      Vector(oneToAdd, counterToAdd, additionToCounter, counterToLessThan, sixtyToLessThan, lessThanToIf, incrementIfLessThan, wipeCounter, wipeIfSixty)
     )
-    program
-      .flatMap {
-        case (blocks, connections) =>
-          IO(println("- Blocks:")) *>
-            blocks.traverse(s => IO(println(s))) *>
-            IO(println("\n- Connections:")) *>
-            connections.traverse(s => IO(println(s)))
-      }
-      .as(ExitCode.Success)
+    program.flatMap(w => IO(println(w.show))).as(ExitCode.Success)
   }
 
 }
