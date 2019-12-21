@@ -11,4 +11,5 @@ lazy val fancadedsl = (project in file("fancadedsl")).settings(
     "com.alexknvl" %% "polymorphic" % "0.5.0",
     "io.chrisdavenport" %% "fuuid" % "0.3.0-M5",
   ),
+  addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
 )

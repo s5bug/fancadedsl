@@ -1,6 +1,7 @@
 package tf.bug
 
 import cats.Show
+import cats.data.StateT
 import polymorphic.Sigma
 
 package object fancadedsl
@@ -15,6 +16,8 @@ package object fancadedsl
     with World.Implicits {
 
   type Quoted[+T] <: T
+
+  type Program[F[_]] = StateT[F, World, Unit]
 
   implicit def sigmaFromShow[A](a: A)(implicit show: Show.ContravariantShow[A]): Sigma[A, Show.ContravariantShow] = Sigma.apply[A, Show.ContravariantShow](a)(show)
 
