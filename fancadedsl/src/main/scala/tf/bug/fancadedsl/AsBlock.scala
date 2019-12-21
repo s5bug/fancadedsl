@@ -1,7 +1,6 @@
 package tf.bug.fancadedsl
 
 import shapeless.{HList, Nat}
-import shapeless.nat._
 
 trait AsBlock[A] {
 

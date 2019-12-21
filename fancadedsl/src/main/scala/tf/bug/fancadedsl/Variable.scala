@@ -1,13 +1,10 @@
 package tf.bug.fancadedsl
 
 import cats.Show
-import cats.implicits._
 import cats.effect.Sync
-import io.chrisdavenport.fuuid.FUUID
+import cats.implicits._
 import shapeless._
 import shapeless.nat._
-import shapeless.ops.hlist.Length
-import tf.bug.fancadedsl.Fancade.Block
 
 import scala.util.Random
 
@@ -15,7 +12,10 @@ case class Variable[T: DataType](name: String)
 
 object Variable {
 
-  def apply[F[_], T](implicit sync: Sync[F], dataType: DataType[T]): F[Variable[T]] =
+  def apply[F[_], T](
+      implicit sync: Sync[F],
+      dataType: DataType[T]
+  ): F[Variable[T]] =
     sync
       .delay {
         val bits = 72
@@ -43,12 +43,12 @@ object Variable {
     }
 
     implicit def getVariableAsBlock[T: DataType]
-        : AsBlock.Aux[Get[T], HNil, T :: HNil, false, _0] =
+        : AsBlock.Aux[Get[T], HNil, Quoted[T] :: HNil, false, _0] =
       new AsBlock[Get[T]] {
         override type IsEffect = false
         override type ExtraEffects = _0
         override type Inputs = HNil
-        override type Outputs = T :: HNil
+        override type Outputs = Quoted[T] :: HNil
       }
 
     implicit def showSetVariable[T](

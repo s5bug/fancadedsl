@@ -1,9 +1,7 @@
 package tf.bug.fancadedsl
 
-import cats._
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.implicits._
-import shapeless.{HNil, nat}
 import shapeless.nat._
 
 object Main extends IOApp {
@@ -21,8 +19,8 @@ object Main extends IOApp {
       counterToAdd <- fancade.connect(getCounter, _0, add, _1)
       additionToCounter <- fancade.connect(add, _0, setCounter, _0)
     } yield (
-      Vector(showBlock[Variable.Get[Double]].show(getCounter), showBlock[Variable.Set[Double]].show(setCounter), showBlock[Value[Double]].show(oneBlock), showBlock[NumberMath.Add.type].show(add)),
-      Vector(showDataConnection[Double, Value[Double], NumberMath.Add.type].show(oneToAdd), showDataConnection[Double, Variable.Get[Double], NumberMath.Add.type].show(counterToAdd), showDataConnection[Double, NumberMath.Add.type, Variable.Set[Double]].show(additionToCounter))
+      Vector(getCounter.show, setCounter.show, oneBlock.show, add.show),
+      Vector(oneToAdd.show, counterToAdd.show, additionToCounter.show)
     )
     program
       .flatMap {
