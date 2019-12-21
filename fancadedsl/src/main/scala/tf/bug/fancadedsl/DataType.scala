@@ -20,6 +20,10 @@ object DataType {
       override val name: String = "number"
     }
 
+    implicit val truthDataType: DataType[Boolean] = new DataType[Boolean] {
+      override val name: String = "truth"
+    }
+
   }
 
 }

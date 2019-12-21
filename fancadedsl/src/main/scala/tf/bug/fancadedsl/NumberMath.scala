@@ -11,7 +11,7 @@ object NumberMath {
 
   trait Implicits {
 
-    implicit val showAddNumers: Show[Add.type] = Show.show(_ => "Add")
+    implicit val showAddNumbers: Show[Add.type] = Show.show(_ => "Add")
 
     implicit val addNumbersBlock: AsBlock.Aux[
       Add.type,
@@ -26,6 +26,8 @@ object NumberMath {
       override type Outputs = Double :: HNil
     }
 
+    implicit val showMultiplyNumbers: Show[Multiply.type] = Show.show(_ => "Multiply")
+
     implicit val multiplyNumbersBlock: AsBlock.Aux[
       Multiply.type,
       Double :: Double :: HNil,
@@ -38,6 +40,8 @@ object NumberMath {
       override type Inputs = Double :: Double :: HNil
       override type Outputs = Double :: HNil
     }
+
+    implicit val showLessThan: Show[LessThan.type] = Show.show(_ => "LessThan")
 
     implicit val lessThanBlock: AsBlock.Aux[
       LessThan.type,
