@@ -1,6 +1,7 @@
 package tf.bug.fancadedsl
 
 import cats._
+import cats.data.StateT
 import cats.implicits._
 import cats.kernel.Monoid
 import polymorphic.{Instance, Sigma}
@@ -11,6 +12,24 @@ case class World(blocks: Vector[Sigma[Fancade.Block[_, _ <: HList, _ <: HList, _
 object World {
 
   trait Implicits {
+
+    implicit class BlockOps[F[_]: Applicative, A, I <: HList, O <: HList, E <: Boolean, X <: Nat](block: F[Fancade.Block[A, I, O, E, X]])(implicit showA: Show[A]) {
+
+      def ! : StateT[F, World, Fancade.Block[A, I, O, E, X]] = StateT[F, World, Fancade.Block[A, I, O, E, X]](world => block.map(b => (world.copy(blocks = world.blocks :+ b), b)))
+
+    }
+
+    implicit class ConnectionOps[F[+_]: Applicative, C <: Fancade.Connection[_, _]](connection: F[C])(implicit showC: Show[C]) {
+
+      def ! : StateT[F, World, C] = StateT[F, World, C](world => connection.map(c => (world.copy(connections = world.connections :+ c), c)))
+
+    }
+
+    implicit class PureOps[F[_]: Applicative, A](fa: F[A]) {
+
+      def ? : StateT[F, World, A] = StateT.liftF[F, World, A](fa)
+
+    }
 
     implicit val worldMonoid: Monoid[World] = new Monoid[World] {
       override def empty: World = World(Vector.empty, Vector.empty)
