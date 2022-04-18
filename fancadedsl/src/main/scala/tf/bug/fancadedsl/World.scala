@@ -4,7 +4,7 @@ import cats._
 import cats.data.StateT
 import cats.implicits._
 import cats.kernel.Monoid
-import polymorphic.{Instance, Sigma}
+import polymorphic.Sigma
 import shapeless.{HList, Nat}
 
 case class World(blocks: Set[Sigma[Fancade.Block[_, _ <: HList, _ <: HList, _ <: Boolean, _ <: Nat], Show.ContravariantShow]], connections: Set[Sigma[Fancade.Connection[_, _], Show.ContravariantShow]])
